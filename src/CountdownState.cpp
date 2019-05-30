@@ -2,12 +2,12 @@
 #define COUNTDOWN_STATE_CPP
 #include <math.h>
 
-#include "CounterState.hpp"
+#include "State.hpp"
 #include "Light.hpp"
 
 typedef Light* LightPtr;
 
-class CountdownState : public CounterState {
+class CountdownState : public State {
   public:
     CountdownState(long durationMillis, LightPtr* lights, int numberOfLights) {
       this->durationMillis = durationMillis;

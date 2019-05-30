@@ -2,9 +2,9 @@
 
 #include "catch.hpp"
 #include "../src/Context.cpp"
-#include "../src/CounterState.hpp"
+#include "../src/State.hpp"
 
-class MockState : public CounterState {
+class MockState : public State {
   public:
     bool receivedReset = false;
     bool _isFinished = false;

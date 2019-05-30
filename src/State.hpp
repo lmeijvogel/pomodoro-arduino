@@ -3,7 +3,7 @@
 
 #include <string>
 
-class CounterState {
+class State {
   public:
     virtual void reset(long durationMillis) = 0;
     virtual void clockTick(long currentTimeMillis) = 0;

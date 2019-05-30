@@ -1,11 +1,11 @@
 #ifndef CONTEXT_CPP
 #define CONTEXT_CPP
 
-#include "CounterState.hpp"
+#include "State.hpp"
 
 class Context {
   public:
-    Context(CounterState *waitingForPomodoroState, CounterState *pomodoroState, CounterState *waitingForBreakState, CounterState *breakState) {
+    Context(State *waitingForPomodoroState, State *pomodoroState, State *waitingForBreakState, State *breakState) {
       this->waitingForPomodoroState = waitingForPomodoroState;
       this->pomodoroState = pomodoroState;
       this->waitingForBreakState = waitingForBreakState;
@@ -40,11 +40,11 @@ class Context {
       }
     }
 
-    void setStateForTests(CounterState *state) {
+    void setStateForTests(State *state) {
       this->currentState = state;
     }
 
-    CounterState *stateForTests() {
+    State *stateForTests() {
       return this->currentState;
     }
 
@@ -53,15 +53,15 @@ class Context {
     }
 
   private:
-    CounterState *currentState;
-    CounterState *waitingForPomodoroState;
-    CounterState *pomodoroState;
-    CounterState *waitingForBreakState;
-    CounterState *breakState;
+    State *currentState;
+    State *waitingForPomodoroState;
+    State *pomodoroState;
+    State *waitingForBreakState;
+    State *breakState;
 
     int buttonPressCounter = 0;
 
-    void transitionTo(CounterState *newState, long currentTimeMillis) {
+    void transitionTo(State *newState, long currentTimeMillis) {
       this->currentState = newState;
       this->currentState->reset(currentTimeMillis);
     }

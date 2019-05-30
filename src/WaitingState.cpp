@@ -2,12 +2,12 @@
 #define WAITING_STATE_CPP
 #include <math.h>
 
-#include "CounterState.hpp"
+#include "State.hpp"
 #include "Light.hpp"
 
 typedef Light* LightPtr;
 
-class WaitingState : public CounterState {
+class WaitingState : public State {
   public:
     WaitingState(std::string name, LightPtr* lights, int numberOfLights) {
       this->_name = name;

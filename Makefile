@@ -46,7 +46,7 @@ obj/PomodoroState.o: obj/CountdownState.o src/PomodoroState.cpp
 obj/BreakState.o: obj/CountdownState.o src/BreakState.cpp
 	$(CXX) src/BreakState.cpp -c -o $@ $(CXXFLAGS)
 
-obj/WaitingState.o: src/CounterState.hpp src/WaitingState.cpp
+obj/WaitingState.o: src/State.hpp src/WaitingState.cpp
 	$(CXX) src/WaitingState.cpp -c -o $@ $(CXXFLAGS)
 
 obj/Context.o: src/Context.cpp obj/PomodoroState.o obj/BreakState.o obj/WaitingState.o
