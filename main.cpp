@@ -5,9 +5,10 @@
 #include <ncurses.h>
 #include <string.h>
 
-#include "src/PomodoroState.cpp"
+#include "src/Context.cpp"
 #include "src/CountdownState.cpp"
 #include "src/BreakState.cpp"
+#include "src/WaitingState.cpp"
 #include "src/PomodoroState.cpp"
 #include "src/Light.hpp"
 #include "src/GuiLight.cpp"
@@ -25,7 +26,7 @@ GuiLightPtr *createLights();
 
 Gui *gui;
 
-void handleInput(int ch, int elapsedTimeMs);
+void handleInput(int ch, Context *context, int elapsedTimeMs);
 int secondsSinceEpoch();
 
 void cleanupAndExit() {
@@ -50,13 +51,18 @@ int main() {
 
   sigaction(SIGINT, &sigIntHandler, NULL);
 
-  CountdownState *counterState = new PomodoroState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
-  // CountdownState *counterState = new BreakState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  PomodoroState pomodoroState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  BreakState breakState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  WaitingState waitingForBreakState("waitingForBreak", (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  WaitingState waitingForPomodoroState("waitingForPomodoro", (LightPtr *)lights, NUMBER_OF_LIGHTS);
 
-  gui = new NCursesGui((LightPtr *)lights, NUMBER_OF_LIGHTS, statusOnLight);
+  Context *context = new Context(&waitingForPomodoroState, &pomodoroState, &waitingForBreakState, &breakState);
+
+  gui = new NCursesGui(context, (LightPtr *)lights, NUMBER_OF_LIGHTS, statusOnLight);
   // gui = new BareGui((LightPtr *)lights, NUMBER_OF_LIGHTS, statusOnLight);
 
-  counterState->reset(0);
+  context->reset(0);
+
   gui->init();
 
   gui->printIntro();
@@ -68,11 +74,7 @@ int main() {
 
     int elapsedTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(now - startTime).count();
 
-    counterState->clockTick(elapsedTimeMs);
-
-    if (counterState->isFinished(elapsedTimeMs)) {
-      counterState->reset(elapsedTimeMs);
-    }
+    context->clockTick(elapsedTimeMs);
 
     int ch = getch();
 
@@ -80,7 +82,7 @@ int main() {
       delete[] lights;
       cleanupAndExit();
     } else if (ch != ERR) {
-      handleInput(ch, elapsedTimeMs);
+      handleInput(ch, context, elapsedTimeMs);
     }
 
     gui->update();
@@ -98,18 +100,12 @@ GuiLightPtr *createLights() {
   return lights;
 }
 
-void handleInput(int ch, int elapsedTimeMs) {
-  // switch(ch) {
-  // case 'z':
-    // stateMachine.switchOff();
-    // break;
-  // case 'x':
-    // stateMachine.switchGradual(elapsedTimeMs, GRADUAL_TRANSITION_PERIOD_MS);
-    // break;
-  // case 'c':
-    // stateMachine.switchOn();
-    // break;
-  // }
+void handleInput(int ch, Context *context, int elapsedTimeMs) {
+  switch(ch) {
+  case ' ':
+    context->buttonPressed(elapsedTimeMs);
+    break;
+  }
 }
 
 int secondsSinceEpoch() {

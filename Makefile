@@ -1,8 +1,8 @@
 CXX = g++
 CXXFLAGS = -std=c++0x -g -Wall -pedantic
 
-APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/BreakState.o
-TEST_FILES_O = obj/PomodoroStateTests.o $(APP_FILES_O)
+APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/BreakState.o obj/WaitingState.o obj/Context.o
+TEST_FILES_O = obj/PomodoroStateTests.o obj/ContextTests.o $(APP_FILES_O)
 
 default: bin bin/main
 
@@ -37,14 +37,26 @@ obj/catch.o:  __tests__/suite.cpp
 obj/PomodoroStateTests.o: __tests__/PomodoroStateTests.cpp obj/PomodoroState.o
 	$(CXX) __tests__/PomodoroStateTests.cpp -c -o $@ $(CXXFLAGS)
 
+obj/ContextTests.o: __tests__/ContextTests.cpp obj/Context.o
+	$(CXX) __tests__/ContextTests.cpp -c -o $@ $(CXXFLAGS)
+
 obj/PomodoroState.o: obj/CountdownState.o src/PomodoroState.cpp
 	$(CXX) src/PomodoroState.cpp -c -o $@ $(CXXFLAGS)
 
 obj/BreakState.o: obj/CountdownState.o src/BreakState.cpp
 	$(CXX) src/BreakState.cpp -c -o $@ $(CXXFLAGS)
 
+obj/WaitingState.o: src/CounterState.hpp src/WaitingState.cpp
+	$(CXX) src/WaitingState.cpp -c -o $@ $(CXXFLAGS)
+
+obj/Context.o: src/Context.cpp obj/PomodoroState.o obj/BreakState.o obj/WaitingState.o
+	$(CXX) src/Context.cpp -c -o $@ $(CXXFLAGS)
+
 obj/CountdownState.o: src/CountdownState.cpp
 	$(CXX) src/CountdownState.cpp -c -o $@ $(CXXFLAGS)
+
+obj/StateMachine.o: src/StateMachine.hpp src/StateMachine.cpp src/AbstractLightController.hpp src/State.hpp
+	$(CXX) src/StateMachine.cpp -c -o $@ $(CXXFLAGS)
 
 obj/BareGui.o: BareGui.cpp Gui.hpp
 	$(CXX) BareGui.cpp -c -o $@ $(CXXFLAGS)

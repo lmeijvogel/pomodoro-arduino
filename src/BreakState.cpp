@@ -9,6 +9,10 @@ class BreakState : public CountdownState {
   public:
     BreakState(long durationMillis, LightPtr* lights, int numberOfLights): CountdownState(durationMillis, lights, numberOfLights) { }
 
+    virtual std::string name() {
+      return "break";
+    }
+
   protected:
     virtual void turnLightsOn(double timeFractionPassed) {
       int numberOfActivatedLights = timeFractionPassed * this->numberOfLights;

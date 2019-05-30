@@ -6,19 +6,23 @@
 #include <stdlib.h>
 
 #include "Gui.hpp"
+#include "src/Context.cpp"
 #include "src/GuiLight.cpp"
 #include "src/Light.hpp"
 
 typedef Light* LightPtr;
 typedef GuiLight* GuiLightPtr;
 
-const int HEADER_SIZE = 6;
+const int HEADER_SIZE = 4;
 
 class NCursesGui : public Gui {
   public:
-    NCursesGui(LightPtr *lights,
+    NCursesGui(
+        Context *context,
+        LightPtr *lights,
         int numberOfLights,
         GuiLight *statusOnLight) {
+      this->context = context;
       this->lights = lights;
       this->numberOfLights = numberOfLights;
       this->statusOnLight = statusOnLight;
@@ -34,9 +38,7 @@ class NCursesGui : public Gui {
 
     virtual void printIntro() {
       this->print(0, (char *)"q: Quit\n");
-      this->print(0, (char *)"z: Turn off\n");
-      this->print(0, (char *)"x: Gradual\n");
-      this->print(0, (char *)"c: Turn on\n");
+      this->print(0, (char *)"<space>: Button press\n");
       this->print(0, (char *)"\n");
 
       refresh();
@@ -56,32 +58,17 @@ class NCursesGui : public Gui {
     }
 
   private:
+    Context *context;
     LightPtr *lights;
     int numberOfLights;
     GuiLight *statusOnLight;
 
     void printState() {
-      // State state = this->stateMachine->getState();
+      std::string stateName = this->context->currentStateName();
 
       char description[60];
 
-      // switch (state) {
-      // case StateOff:
-      // sprintf(description, "%-59s", "StateOff");
-      // break;
-      // case StateTurningOn:
-      // sprintf(description, "%-59s", "StateTurningOn");
-      // break;
-      // case StateAnimating:
-      // sprintf(description, "%-59s", "StateAnimating");
-      // break;
-      // case StateOn:
-      // sprintf(description, "%-59s", "StateOn");
-      // break;
-      // case StateTurningOff:
-      sprintf(description, "%-59s", "Boo");
-      // break;
-      // }
+      sprintf(description, "%-59s", stateName.c_str());
 
       this->print(HEADER_SIZE + 2, description);
 
@@ -98,6 +85,7 @@ class NCursesGui : public Gui {
         line[2*i] = pLight->getState() ? '*' : '.';
         line[2*i+1] = ' ';
       }
+
       line[this->numberOfLights * 2] = '\n';
       line[this->numberOfLights * 2 + 1] = 0;
 
