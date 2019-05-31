@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++0x -g -Wall -pedantic
 
-APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/BreakState.o obj/WaitingState.o obj/Context.o
+APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/PomodoroDoneState.o obj/BreakState.o obj/BreakDoneState.o obj/WaitingState.o obj/Context.o
 TEST_FILES_O = obj/PomodoroStateTests.o obj/ContextTests.o $(APP_FILES_O)
 
 default: bin bin/main
@@ -43,13 +43,22 @@ obj/ContextTests.o: __tests__/ContextTests.cpp obj/Context.o
 obj/PomodoroState.o: obj/CountdownState.o src/PomodoroState.cpp
 	$(CXX) src/PomodoroState.cpp -c -o $@ $(CXXFLAGS)
 
+obj/BlinkingState.o: obj/CountdownState.o src/BlinkingState.cpp
+	$(CXX) src/BlinkingState.cpp -c -o $@ $(CXXFLAGS)
+
+obj/PomodoroDoneState.o: obj/BlinkingState.o src/PomodoroDoneState.cpp
+	$(CXX) src/PomodoroDoneState.cpp -c -o $@ $(CXXFLAGS)
+
+obj/BreakDoneState.o: obj/BlinkingState.o src/BreakDoneState.cpp
+	$(CXX) src/BreakDoneState.cpp -c -o $@ $(CXXFLAGS)
+
 obj/BreakState.o: obj/CountdownState.o src/BreakState.cpp
 	$(CXX) src/BreakState.cpp -c -o $@ $(CXXFLAGS)
 
 obj/WaitingState.o: src/State.hpp src/WaitingState.cpp
 	$(CXX) src/WaitingState.cpp -c -o $@ $(CXXFLAGS)
 
-obj/Context.o: src/Context.cpp obj/PomodoroState.o obj/BreakState.o obj/WaitingState.o
+obj/Context.o: src/Context.cpp obj/PomodoroState.o obj/PomodoroDoneState.o obj/BreakState.o obj/WaitingState.o
 	$(CXX) src/Context.cpp -c -o $@ $(CXXFLAGS)
 
 obj/CountdownState.o: src/CountdownState.cpp

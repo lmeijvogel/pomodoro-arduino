@@ -5,11 +5,13 @@
 
 class Context {
   public:
-    Context(State *waitingForPomodoroState, State *pomodoroState, State *waitingForBreakState, State *breakState) {
+    Context(State *waitingForPomodoroState, State *pomodoroState, State *pomodoroDoneState, State *waitingForBreakState, State *breakState, State *breakDoneState) {
       this->waitingForPomodoroState = waitingForPomodoroState;
       this->pomodoroState = pomodoroState;
+      this->pomodoroDoneState = pomodoroDoneState;
       this->waitingForBreakState = waitingForBreakState;
       this->breakState = breakState;
+      this->breakDoneState = breakDoneState;
 
       this->currentState = waitingForPomodoroState;
     }
@@ -56,8 +58,10 @@ class Context {
     State *currentState;
     State *waitingForPomodoroState;
     State *pomodoroState;
+    State *pomodoroDoneState;
     State *waitingForBreakState;
     State *breakState;
+    State *breakDoneState;
 
     int buttonPressCounter = 0;
 
@@ -68,10 +72,17 @@ class Context {
 
     void currentStateFinished(long currentTimeMillis) {
       if (this->currentState == this->breakState) {
+        this->transitionTo(this->breakDoneState, currentTimeMillis);
+      } else if (this->currentState == this->breakDoneState) {
         this->transitionTo(this->waitingForPomodoroState, currentTimeMillis);
       } else if (this->currentState == this->pomodoroState) {
+        this->transitionTo(this->pomodoroDoneState, currentTimeMillis);
+      } else if (this->currentState == this->pomodoroDoneState) {
+        this->transitionTo(this->waitingForBreakState, currentTimeMillis);
+      } else if (this->currentState == this->pomodoroDoneState) {
         this->transitionTo(this->waitingForBreakState, currentTimeMillis);
       }
+
     }
 };
 

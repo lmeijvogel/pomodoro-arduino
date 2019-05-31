@@ -10,6 +10,8 @@
 #include "src/BreakState.cpp"
 #include "src/WaitingState.cpp"
 #include "src/PomodoroState.cpp"
+#include "src/PomodoroDoneState.cpp"
+#include "src/BreakDoneState.cpp"
 #include "src/Light.hpp"
 #include "src/GuiLight.cpp"
 #include "Gui.hpp"
@@ -52,11 +54,13 @@ int main() {
   sigaction(SIGINT, &sigIntHandler, NULL);
 
   PomodoroState pomodoroState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  PomodoroDoneState pomodoroDoneState(3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   BreakState breakState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  BreakDoneState breakDoneState(3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   WaitingState waitingForBreakState("waitingForBreak", (LightPtr *)lights, NUMBER_OF_LIGHTS);
   WaitingState waitingForPomodoroState("waitingForPomodoro", (LightPtr *)lights, NUMBER_OF_LIGHTS);
 
-  Context *context = new Context(&waitingForPomodoroState, &pomodoroState, &waitingForBreakState, &breakState);
+  Context *context = new Context(&waitingForPomodoroState, &pomodoroState, &pomodoroDoneState, &waitingForBreakState, &breakState, &breakDoneState);
 
   gui = new NCursesGui(context, (LightPtr *)lights, NUMBER_OF_LIGHTS, statusOnLight);
   // gui = new BareGui((LightPtr *)lights, NUMBER_OF_LIGHTS, statusOnLight);
