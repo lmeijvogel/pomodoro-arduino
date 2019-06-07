@@ -1,35 +1,41 @@
 // the setup function runs once when you press reset or power the board
-#include "LightController.h"
-#include "LedLight.h"
-#include "StateMachine.h"
-#include "PhysicalButton.h"
+#include "LedLight.cpp"
+#include "PhysicalButton.cpp"
 
-const int LED_PINS[] = { 8, 9, 10, 11 };
-typedef LightController* LightControllerPtr;
+#include "Context.cpp"
+#include "CountdownState.cpp"
+#include "BreakState.cpp"
+#include "WaitingState.cpp"
+#include "PomodoroState.cpp"
+
+const int LED_PINS[] = { 8, 9, 10, 11, 12 };
+const int BUTTON_PINS[] = { 13 };
 typedef Light* LightPtr;
 
-const int NUMBER_OF_LIGHTS = 8;
-const int NUMBER_OF_LEDS = 4;
+const int NUMBER_OF_LEDS = 5;
 
-const int TOTAL_NUMBER_OF_LIGHTS = NUMBER_OF_LIGHTS + NUMBER_OF_LEDS;
-
-const int NUMBER_OF_BUTTONS = 2;
-
-unsigned long startTime;
-
-LightControllerPtr *createLightControllers(LightPtr *lights, int count, RandomGenerator *randomGenerator);
+const unsigned long POMODORO_DURATION_IN_MINUTES = 25L;
+const unsigned long BREAK_DURATION_IN_MINUTES = 5L;
 
 void pollButtons();
-void readButtons(StateMachine *stateMachine, unsigned long currentTimeMs);
-void showStatus(State state);
+PhysicalButton *button;
 
-StateMachine *stateMachine;
+void readButtons(Context *context, unsigned long currentTimeMs);
+/* void showStatus(State state); */
 
 LedLight *statusLight;
 
 LedLight *statusOnLight;
 
-boolean previousOffButtonPressed = false;
+Context *context;
+PomodoroState *pomodoroState;
+BlinkingState *pomodoroDoneState;
+BlinkingState *breakDoneState;
+BreakState *breakState;
+WaitingState *waitingForBreakState;
+WaitingState *waitingForPomodoroState;
+
+boolean previousButtonPressed = false;
 
 void setup() {
   Serial.begin(9600);
@@ -38,19 +44,26 @@ void setup() {
 
   statusOnLight = new LedLight(LED_BUILTIN);
 
-  startTime = millis();
-
-  RandomGenerator randomGenerator(startTime);
-
-  LightPtr *lights = new LightPtr[TOTAL_NUMBER_OF_LIGHTS];
+  LightPtr *lights = new LightPtr[NUMBER_OF_LEDS];
 
   for (int i = 0 ; i < NUMBER_OF_LEDS ; i++) {
-    lights[NUMBER_OF_LIGHTS + i] = new LedLight(LED_PINS[i]);
+    lights[i] = new LedLight(LED_PINS[i]);
   }
 
-  LightControllerPtr *lightControllers = createLightControllers((LightPtr *)lights, TOTAL_NUMBER_OF_LIGHTS);
+  long pomodoroDurationMillis = POMODORO_DURATION_IN_MINUTES * 60 * 1000;
+  long breakDurationMillis = BREAK_DURATION_IN_MINUTES * 60 * 1000;
 
-  stateMachine = new StateMachine(statusLedController);
+  pomodoroState = new PomodoroState(pomodoroDurationMillis, (LightPtr *)lights, NUMBER_OF_LEDS);
+  pomodoroDoneState = new BlinkingState("pomodoroDone", 2500, 5, (LightPtr *)lights, NUMBER_OF_LEDS);
+  breakDoneState = new BlinkingState("breakDone", 2500, 5, (LightPtr *)lights, NUMBER_OF_LEDS);
+  breakState = new BreakState(breakDurationMillis, (LightPtr *)lights, NUMBER_OF_LEDS);
+  waitingForBreakState = new WaitingState("waitingForBreak", "01010", (LightPtr *)lights, NUMBER_OF_LEDS);
+  waitingForPomodoroState = new WaitingState("waitingForPomodoro", "00100", (LightPtr *)lights, NUMBER_OF_LEDS);
+
+  context = new Context(waitingForPomodoroState, pomodoroState, pomodoroDoneState, waitingForBreakState, breakState, breakDoneState);
+  context->reset(millis());
+
+  button = new PhysicalButton(BUTTON_PINS[0]);
 }
 
 // the loop function runs over and over again forever
@@ -58,43 +71,25 @@ void loop() {
   unsigned long now = millis();
 
   pollButtons();
-  readButtons(stateMachine, now);
+  readButtons(context, now);
 
-  stateMachine->clockTick(now);
-
-  showStatus(stateMachine->getState());
-}
-
-LightControllerPtr *createLightControllers(LightPtr *lights, int count, RandomGenerator *randomGenerator) {
-  LightControllerPtr *lightControllers = new LightControllerPtr[count];
-
-  for (int i = 0 ; i < count ; i++) {
-    LightController *lightController = new LightController(lights[i], randomGenerator, 5000, 3000);
-    lightControllers[i] = lightController;
-  }
-
-  return lightControllers;
+  context->clockTick(now);
 }
 
 void pollButtons() {
-  // TODO
+  button->clockTick();
 }
 
-void readButtons(StateMachine *stateMachine, unsigned long currentTimeMs ) {
-  /* boolean offButtonPressed = offButton->isPressed(); */
-  /* boolean gradualButtonPressed = gradualButton->isPressed(); */
+void readButtons(Context *context, unsigned long currentTimeMs ) {
+  boolean buttonPressed = button->isPressed();
 
-  /* if (offButtonPressed && !previousOffButtonPressed) { */
-    /* stateMachine->switchOff(); */
-  /* } */
+  if (!previousButtonPressed && buttonPressed) {
+    context->buttonPressed(currentTimeMs);
 
-  /* previousOffButtonPressed = offButtonPressed; */
-}
-
-void showStatus(State state) {
-  if (state == StateOff) {
-    statusLight->turnOff();
-  } else {
-    statusLight->turnOn();
+    char buffer[100];
+    sprintf(buffer, "New state: %s", context->currentStateName());
+    Serial.println(buffer);
   }
+
+  previousButtonPressed = buttonPressed;
 }

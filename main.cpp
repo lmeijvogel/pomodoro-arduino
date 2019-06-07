@@ -10,8 +10,7 @@
 #include "src/BreakState.cpp"
 #include "src/WaitingState.cpp"
 #include "src/PomodoroState.cpp"
-#include "src/PomodoroDoneState.cpp"
-#include "src/BreakDoneState.cpp"
+#include "src/BlinkingState.cpp"
 #include "src/Light.hpp"
 #include "src/GuiLight.cpp"
 #include "Gui.hpp"
@@ -37,7 +36,7 @@ void cleanupAndExit() {
   exit(1);
 }
 
-void sigIntReceived(int s) {
+void sigIntReceived(int) {
   cleanupAndExit();
 }
 
@@ -54,11 +53,11 @@ int main() {
   sigaction(SIGINT, &sigIntHandler, NULL);
 
   PomodoroState pomodoroState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
-  PomodoroDoneState pomodoroDoneState(3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  BlinkingState pomodoroDoneState("pomodoroDone", 3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   BreakState breakState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
-  BreakDoneState breakDoneState(3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
-  WaitingState waitingForBreakState("waitingForBreak", (LightPtr *)lights, NUMBER_OF_LIGHTS);
-  WaitingState waitingForPomodoroState("waitingForPomodoro", (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  BlinkingState breakDoneState("breakDone", 3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  WaitingState waitingForBreakState("waitingForBreak", "01010", (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  WaitingState waitingForPomodoroState("waitingForPomodoro", "00100", (LightPtr *)lights, NUMBER_OF_LIGHTS);
 
   Context *context = new Context(&waitingForPomodoroState, &pomodoroState, &pomodoroDoneState, &waitingForBreakState, &breakState, &breakDoneState);
 

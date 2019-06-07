@@ -64,11 +64,11 @@ class NCursesGui : public Gui {
     GuiLight *statusOnLight;
 
     void printState() {
-      std::string stateName = this->context->currentStateName();
+      const char* stateName = this->context->currentStateName();
 
       char description[60];
 
-      sprintf(description, "%-59s", stateName.c_str());
+      sprintf(description, "%-59s", stateName);
 
       this->print(HEADER_SIZE + 2, description);
 

@@ -12,7 +12,7 @@ class PomodoroState : public CountdownState {
   public:
     PomodoroState(long durationMillis, LightPtr* lights, int numberOfLights) : CountdownState(durationMillis, lights, numberOfLights) { }
 
-    virtual std::string name() {
+    virtual const char *name() {
       return "pomodoro";
     }
 

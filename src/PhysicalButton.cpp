@@ -1,40 +1,56 @@
+#ifndef PHYSICAL_BUTTON_H
+#define PHYSICAL_BUTTON_H
+
 #include "Arduino.h"
-#include "PhysicalButton.h"
 
-PhysicalButton::PhysicalButton(int buttonId) {
-  this->buttonId = buttonId;
+const int PRESS_THRESHOLD = 60;
 
-  pinMode(buttonId, INPUT_PULLUP);
-}
+class PhysicalButton {
+  public:
+    PhysicalButton(int buttonId) {
+      this->buttonId = buttonId;
 
-boolean PhysicalButton::isPressed() {
-  return _pressed;
-}
+      pinMode(buttonId, INPUT_PULLUP);
+    }
 
-void PhysicalButton::clockTick() {
-  /* Use a form of Kuhn's algorithm for debouncing buttons:
-   * Basically: Keep a counter that increases if a LOW (pressed)
-   * signal is received from the button, and decreases otherwise.
-   *
-   * Whenever a boundary value is hit (0 or PRESS_THRESHOLD), change the
-   * state to false (not pressed) resp. true (pressed).
-   */
-  int reading = digitalRead(buttonId);
+    void clockTick() {
+      /* Use a form of Kuhn's algorithm for debouncing buttons:
+       * Basically: Keep a counter that increases if a LOW (pressed)
+       * signal is received from the button, and decreases otherwise.
+       *
+       * Whenever a boundary value is hit (0 or PRESS_THRESHOLD), change the
+       * state to false (not pressed) resp. true (pressed).
+       */
+      int reading = digitalRead(buttonId);
 
-  if (reading == LOW) {
-    pressIntegrator++;
-  } else {
-    pressIntegrator--;
-  }
+      if (reading == LOW) {
+        pressIntegrator++;
+      } else {
+        pressIntegrator--;
+      }
 
-  if (pressIntegrator <= 0) {
-    pressIntegrator = 0;
+      if (pressIntegrator <= 0) {
+        pressIntegrator = 0;
 
-    _pressed = false;
-  }
+        _pressed = false;
+      }
 
-  if (pressIntegrator > PRESS_THRESHOLD) {
-    _pressed = true;
-    pressIntegrator = PRESS_THRESHOLD;
-  }
-}
+      if (pressIntegrator > PRESS_THRESHOLD) {
+        _pressed = true;
+        pressIntegrator = PRESS_THRESHOLD;
+      }
+    }
+
+    boolean isPressed() {
+      return _pressed;
+    }
+
+  private:
+    int buttonId;
+
+    int pressIntegrator = 0;
+
+    bool _pressed = false;
+};
+
+#endif

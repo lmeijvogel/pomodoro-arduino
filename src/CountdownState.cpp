@@ -2,6 +2,8 @@
 #define COUNTDOWN_STATE_CPP
 #include <math.h>
 
+#include "Logger.cpp"
+
 #include "State.hpp"
 #include "Light.hpp"
 
@@ -28,9 +30,11 @@ class CountdownState : public State {
     virtual void clockTick(long currentTimeMillis) {
       long elapsedTimeMillis = currentTimeMillis - this->startTimeMillis;
 
-      double timeFractionPassed = (double)elapsedTimeMillis / this->durationMillis;
+      double timeFractionPassed = (double)elapsedTimeMillis / (double)this->durationMillis;
 
-      this->turnLightsOn(timeFractionPassed);
+      if (elapsedTimeMillis < this->durationMillis) {
+        this->turnLightsOn(timeFractionPassed);
+      }
     }
 
     virtual bool isFinished(long currentTimeMillis) {

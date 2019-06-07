@@ -2,7 +2,7 @@
 #define LED_LIGHT_CPP
 
 #include "Arduino.h"
-#include "Light.h"
+#include "Light.hpp"
 
 class LedLight : public Light {
 public:

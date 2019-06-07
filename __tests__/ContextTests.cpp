@@ -11,11 +11,11 @@ class MockState : public State {
 
     long lastTick = 0;
 
-    MockState(std::string name) {
+    MockState(const char *name) {
       this->_name = name;
     }
 
-    virtual void reset(long durationMillis) {
+    virtual void reset(long) {
       this->receivedReset = true;
     }
 
@@ -23,16 +23,16 @@ class MockState : public State {
       this->lastTick = currentTimeMillis;
     }
 
-    virtual bool isFinished(long currentTimeMillis) {
+    virtual bool isFinished(long) {
       return this->_isFinished;
     }
 
-    virtual std::string name() {
+    virtual const char *name() {
       return this->_name;
     }
 
   private:
-    std::string _name;
+    const char * _name;
 };
 
 typedef MockState* MockStatePtr;

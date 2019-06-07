@@ -55,7 +55,7 @@ class BareGui : public Gui {
     Light *statusOnLight;
 
 
-    void printState(char *output) {
+    void printState(char *) {
       // State state = this->stateMachine->getState();
 
       // switch (state) {

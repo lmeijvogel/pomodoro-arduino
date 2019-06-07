@@ -5,8 +5,13 @@
 
 class BlinkingState : public CountdownState {
   public:
-    BlinkingState(long durationMillis, int numberOfBlinks, LightPtr* lights, int numberOfLights): CountdownState(durationMillis, lights, numberOfLights) {
+    BlinkingState(const char *name, long durationMillis, int numberOfBlinks, LightPtr* lights, int numberOfLights): CountdownState(durationMillis, lights, numberOfLights) {
+      this->_name = name;
       this->numberOfBlinks = numberOfBlinks;
+    }
+
+    virtual const char* name() {
+      return this->_name;
     }
 
     virtual void resetLightToDefaultState(LightPtr light) {
@@ -28,6 +33,7 @@ class BlinkingState : public CountdownState {
     }
 
   private:
+    const char *_name;
     int numberOfBlinks;
 
     bool inOnFraction(double timeFractionPassed) {

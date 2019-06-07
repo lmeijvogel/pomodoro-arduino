@@ -2,10 +2,17 @@
 #define CONTEXT_CPP
 
 #include "State.hpp"
+#include "WaitingState.cpp"
+#include "PomodoroState.cpp"
+#include "BlinkingState.cpp"
+#include "WaitingState.cpp"
+#include "BreakState.cpp"
+
+#include "Logger.cpp"
 
 class Context {
   public:
-    Context(State *waitingForPomodoroState, State *pomodoroState, State *pomodoroDoneState, State *waitingForBreakState, State *breakState, State *breakDoneState) {
+    Context(WaitingState *waitingForPomodoroState, PomodoroState *pomodoroState, BlinkingState *pomodoroDoneState, WaitingState *waitingForBreakState, BreakState *breakState, BlinkingState *breakDoneState) {
       this->waitingForPomodoroState = waitingForPomodoroState;
       this->pomodoroState = pomodoroState;
       this->pomodoroDoneState = pomodoroDoneState;
@@ -29,6 +36,9 @@ class Context {
     }
 
     void buttonPressed(long currentTimeMillis) {
+      Logger::print("Button pressed! Current state: ");
+      Logger::print(this->currentState->name());
+
       this->buttonPressCounter++;
 
       if (this->currentState == this->waitingForPomodoroState) {
@@ -39,7 +49,12 @@ class Context {
         this->transitionTo(breakState, currentTimeMillis);
       } else if (this->currentState == this->breakState) {
         this->transitionTo(waitingForPomodoroState, currentTimeMillis);
+      } else {
+        Logger::println("ERROR! No state transition found!");
       }
+
+      Logger::print(", new state: ");
+      Logger::println(this->currentState->name());
     }
 
     void setStateForTests(State *state) {
@@ -50,7 +65,7 @@ class Context {
       return this->currentState;
     }
 
-    std::string currentStateName() {
+    const char* currentStateName() {
       return this->currentState->name();
     }
 
@@ -71,18 +86,24 @@ class Context {
     }
 
     void currentStateFinished(long currentTimeMillis) {
-      if (this->currentState == this->breakState) {
-        this->transitionTo(this->breakDoneState, currentTimeMillis);
-      } else if (this->currentState == this->breakDoneState) {
-        this->transitionTo(this->waitingForPomodoroState, currentTimeMillis);
-      } else if (this->currentState == this->pomodoroState) {
-        this->transitionTo(this->pomodoroDoneState, currentTimeMillis);
-      } else if (this->currentState == this->pomodoroDoneState) {
-        this->transitionTo(this->waitingForBreakState, currentTimeMillis);
-      } else if (this->currentState == this->pomodoroDoneState) {
-        this->transitionTo(this->waitingForBreakState, currentTimeMillis);
+      Logger::print("Current state finished! Current state: ");
+      Logger::println(this->currentState->name());
+
+      State *newState = NULL;
+
+      if      (this->currentState == this->breakState)        { newState = this->breakDoneState;          }
+      else if (this->currentState == this->breakDoneState)    { newState = this->waitingForPomodoroState; }
+      else if (this->currentState == this->pomodoroState)     { newState = this->pomodoroDoneState;       }
+      else if (this->currentState == this->pomodoroDoneState) { newState = this->waitingForBreakState;    }
+      else {
+        Logger::println("ERROR! No state transition found!");
       }
 
+      if (newState) {
+        this->transitionTo(newState, currentTimeMillis);
+        Logger::print(", new state: ");
+        Logger::println(newState->name());
+      }
     }
 };
 

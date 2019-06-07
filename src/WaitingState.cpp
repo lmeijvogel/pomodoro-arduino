@@ -9,13 +9,14 @@ typedef Light* LightPtr;
 
 class WaitingState : public State {
   public:
-    WaitingState(std::string name, LightPtr* lights, int numberOfLights) {
+    WaitingState(const char* name, const char *pattern, LightPtr* lights, int numberOfLights) {
       this->_name = name;
+      this->pattern = pattern;
       this->lights = lights;
       this->numberOfLights = numberOfLights;
     }
 
-    virtual void reset(long currentTimeMillis) {
+    virtual void reset(long) {
       for (int i = 0 ; i < this->numberOfLights ; i++) {
         LightPtr light = this->lights[i];
 
@@ -23,21 +24,34 @@ class WaitingState : public State {
       }
     }
 
-    virtual void clockTick(long currentTimeMillis) { }
+    virtual void clockTick(long) {
+      for (int i = 0 ; i < numberOfLights ; i++) {
+        LightPtr light = this->lights[i];
 
-    virtual bool isFinished(long currentTimeMillis) {
+        char value = pattern[i];
+
+        if (value == '1') {
+          light->turnOn();
+        } else {
+          light->turnOff();
+        }
+      }
+    }
+
+    virtual bool isFinished(long) {
       return false;
     }
 
-    virtual std::string name() {
+    virtual const char* name() {
       return this->_name;
     }
 
   protected:
+    const char *pattern;
     LightPtr* lights;
     int numberOfLights;
 
-    std::string _name;
+    const char* _name;
 };
 #endif
 

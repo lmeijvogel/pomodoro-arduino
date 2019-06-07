@@ -1,7 +1,7 @@
 CXX = g++
-CXXFLAGS = -std=c++0x -g -Wall -pedantic
+CXXFLAGS = -std=c++0x -g -Wall -Wextra -pedantic
 
-APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/PomodoroDoneState.o obj/BreakState.o obj/BreakDoneState.o obj/WaitingState.o obj/Context.o
+APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/BreakState.o obj/BlinkingState.o obj/WaitingState.o obj/Context.o
 TEST_FILES_O = obj/PomodoroStateTests.o obj/ContextTests.o $(APP_FILES_O)
 
 default: bin bin/main
@@ -46,9 +46,6 @@ obj/PomodoroState.o: obj/CountdownState.o src/PomodoroState.cpp
 obj/BlinkingState.o: obj/CountdownState.o src/BlinkingState.cpp
 	$(CXX) src/BlinkingState.cpp -c -o $@ $(CXXFLAGS)
 
-obj/PomodoroDoneState.o: obj/BlinkingState.o src/PomodoroDoneState.cpp
-	$(CXX) src/PomodoroDoneState.cpp -c -o $@ $(CXXFLAGS)
-
 obj/BreakDoneState.o: obj/BlinkingState.o src/BreakDoneState.cpp
 	$(CXX) src/BreakDoneState.cpp -c -o $@ $(CXXFLAGS)
 
@@ -58,13 +55,13 @@ obj/BreakState.o: obj/CountdownState.o src/BreakState.cpp
 obj/WaitingState.o: src/State.hpp src/WaitingState.cpp
 	$(CXX) src/WaitingState.cpp -c -o $@ $(CXXFLAGS)
 
-obj/Context.o: src/Context.cpp obj/PomodoroState.o obj/PomodoroDoneState.o obj/BreakState.o obj/WaitingState.o
+obj/Context.o: src/Context.cpp obj/PomodoroState.o obj/BlinkingState.o obj/BreakState.o obj/WaitingState.o
 	$(CXX) src/Context.cpp -c -o $@ $(CXXFLAGS)
 
 obj/CountdownState.o: src/CountdownState.cpp
 	$(CXX) src/CountdownState.cpp -c -o $@ $(CXXFLAGS)
 
-obj/StateMachine.o: src/StateMachine.hpp src/StateMachine.cpp src/AbstractLightController.hpp src/State.hpp
+obj/StateMachine.o: src/StateMachine.hpp src/StateMachine.cpp src/State.hpp
 	$(CXX) src/StateMachine.cpp -c -o $@ $(CXXFLAGS)
 
 obj/BareGui.o: BareGui.cpp Gui.hpp
@@ -72,12 +69,6 @@ obj/BareGui.o: BareGui.cpp Gui.hpp
 
 obj/NCursesGui.o: NCursesGui.cpp Gui.hpp
 	$(CXX) NCursesGui.cpp -c -o $@ $(CXXFLAGS)
-
-obj/LightController.o: src/LightController.hpp src/LightController.cpp src/AbstractLightController.hpp
-	$(CXX) src/LightController.cpp -c -o $@ $(CXXFLAGS)
-
-obj/NullLightController.o: src/NullLightController.hpp src/NullLightController.cpp src/AbstractLightController.hpp
-	$(CXX) src/NullLightController.cpp -c -o $@ $(CXXFLAGS)
 
 obj/GuiLight.o: src/GuiLight.cpp src/Light.hpp
 	$(CXX) src/GuiLight.cpp -c -o $@ $(CXXFLAGS)

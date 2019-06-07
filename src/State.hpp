@@ -1,7 +1,7 @@
 #ifndef COUNTER_STATE_HPP
 #define COUNTER_STATE_HPP
 
-#include <string>
+#include <string.h>
 
 class State {
   public:
@@ -10,6 +10,6 @@ class State {
 
     virtual bool isFinished(long currentTimeMillis) = 0;
 
-    virtual std::string name() = 0;
+    virtual const char *name() = 0;
 };
 #endif
