@@ -27,6 +27,8 @@ LedLight *statusLight;
 
 LedLight *statusOnLight;
 
+LightPtr *lights;
+
 Context *context;
 PomodoroState *pomodoroState;
 BlinkingState *pomodoroDoneState;
@@ -44,7 +46,7 @@ void setup() {
 
   statusOnLight = new LedLight(LED_BUILTIN);
 
-  LightPtr *lights = new LightPtr[NUMBER_OF_LEDS];
+  lights = new LightPtr[NUMBER_OF_LEDS];
 
   for (int i = 0 ; i < NUMBER_OF_LEDS ; i++) {
     lights[i] = new LedLight(LED_PINS[i]);
