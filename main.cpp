@@ -11,6 +11,7 @@
 #include "src/WaitingState.cpp"
 #include "src/PomodoroState.cpp"
 #include "src/BlinkingState.cpp"
+#include "src/PatternedBlinkingState.cpp"
 #include "src/Light.hpp"
 #include "src/GuiLight.cpp"
 #include "Gui.hpp"
@@ -19,6 +20,12 @@
 
 const int NUMBER_OF_LIGHTS = 5;
 
+// const char *blinkingPattern[] = { "10001", "01010", "00100", "01010", "10001" };
+const char *blinkingPattern[] = { "10000", "01000", "00100", "00010", "00001", "00010", "00100", "01000" };
+
+const long BLINKING_PATTERN_STATE_DURATION = 1000;
+const int NUMBER_OF_BLINKING_PATTERNS = 8;
+const int NUMBER_OF_BLINKING_PATTERN_REPETITIONS = 2;
 typedef GuiLight* GuiLightPtr;
 
 GuiLight *statusOnLight = new GuiLight();
@@ -52,14 +59,16 @@ int main() {
 
   sigaction(SIGINT, &sigIntHandler, NULL);
 
+  PatternedBlinkingState pomodoroStartedState(BLINKING_PATTERN_STATE_DURATION, (LightPtr *)lights, NUMBER_OF_LIGHTS, "pomodoroStarted", blinkingPattern, NUMBER_OF_BLINKING_PATTERNS, NUMBER_OF_BLINKING_PATTERN_REPETITIONS);
   PomodoroState pomodoroState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   BlinkingState pomodoroDoneState("pomodoroDone", 3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  WaitingState waitingForBreakState("waitingForBreak", "01010", (LightPtr *)lights, NUMBER_OF_LIGHTS);
+  PatternedBlinkingState breakStartedState(BLINKING_PATTERN_STATE_DURATION, (LightPtr *)lights, NUMBER_OF_LIGHTS, "breakStarted", blinkingPattern, NUMBER_OF_BLINKING_PATTERNS, NUMBER_OF_BLINKING_PATTERN_REPETITIONS);
   BreakState breakState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   BlinkingState breakDoneState("breakDone", 3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
-  WaitingState waitingForBreakState("waitingForBreak", "01010", (LightPtr *)lights, NUMBER_OF_LIGHTS);
   WaitingState waitingForPomodoroState("waitingForPomodoro", "00100", (LightPtr *)lights, NUMBER_OF_LIGHTS);
 
-  Context *context = new Context(&waitingForPomodoroState, &pomodoroState, &pomodoroDoneState, &waitingForBreakState, &breakState, &breakDoneState);
+  Context *context = new Context(&waitingForPomodoroState, &pomodoroStartedState, &pomodoroState, &pomodoroDoneState, &waitingForBreakState, &breakStartedState, &breakState, &breakDoneState);
 
   gui = new NCursesGui(context, (LightPtr *)lights, NUMBER_OF_LIGHTS, statusOnLight);
   // gui = new BareGui((LightPtr *)lights, NUMBER_OF_LIGHTS, statusOnLight);

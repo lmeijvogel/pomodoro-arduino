@@ -5,6 +5,7 @@
 #include "WaitingState.cpp"
 #include "PomodoroState.cpp"
 #include "BlinkingState.cpp"
+#include "PatternedBlinkingState.cpp"
 #include "WaitingState.cpp"
 #include "BreakState.cpp"
 
@@ -12,15 +13,18 @@
 
 class Context {
   public:
-    Context(WaitingState *waitingForPomodoroState, PomodoroState *pomodoroState, BlinkingState *pomodoroDoneState, WaitingState *waitingForBreakState, BreakState *breakState, BlinkingState *breakDoneState) {
+    Context(WaitingState *waitingForPomodoroState, PatternedBlinkingState *pomodoroStartedState, PomodoroState *pomodoroState, BlinkingState *pomodoroDoneState, WaitingState *waitingForBreakState, PatternedBlinkingState *breakStartedState, BreakState *breakState, BlinkingState *breakDoneState) {
       this->waitingForPomodoroState = waitingForPomodoroState;
+      this->pomodoroStartedState = pomodoroStartedState;
       this->pomodoroState = pomodoroState;
       this->pomodoroDoneState = pomodoroDoneState;
       this->waitingForBreakState = waitingForBreakState;
+      this->breakStartedState = breakStartedState;
       this->breakState = breakState;
       this->breakDoneState = breakDoneState;
 
       this->currentState = waitingForPomodoroState;
+      // this->currentState = waitingForBreakState;
     }
 
     void reset(long currentTimeMillis) {
@@ -42,11 +46,11 @@ class Context {
       this->buttonPressCounter++;
 
       if (this->currentState == this->waitingForPomodoroState) {
-        this->transitionTo(this->pomodoroState, currentTimeMillis);
+        this->transitionTo(this->pomodoroStartedState, currentTimeMillis);
       } else if (this->currentState == this->pomodoroState) {
         this->transitionTo(waitingForBreakState, currentTimeMillis);
       } else if (this->currentState == this->waitingForBreakState) {
-        this->transitionTo(breakState, currentTimeMillis);
+        this->transitionTo(breakStartedState, currentTimeMillis);
       } else if (this->currentState == this->breakState) {
         this->transitionTo(waitingForPomodoroState, currentTimeMillis);
       } else {
@@ -72,9 +76,11 @@ class Context {
   private:
     State *currentState;
     State *waitingForPomodoroState;
+    State *pomodoroStartedState;
     State *pomodoroState;
     State *pomodoroDoneState;
     State *waitingForBreakState;
+    State *breakStartedState;
     State *breakState;
     State *breakDoneState;
 
@@ -91,10 +97,12 @@ class Context {
 
       State *newState = NULL;
 
-      if      (this->currentState == this->breakState)        { newState = this->breakDoneState;          }
-      else if (this->currentState == this->breakDoneState)    { newState = this->waitingForPomodoroState; }
-      else if (this->currentState == this->pomodoroState)     { newState = this->pomodoroDoneState;       }
-      else if (this->currentState == this->pomodoroDoneState) { newState = this->waitingForBreakState;    }
+      if      (this->currentState == this->breakState)           { newState = this->breakDoneState;          }
+      else if (this->currentState == this->breakStartedState)    { newState = this->breakState;              }
+      else if (this->currentState == this->breakDoneState)       { newState = this->waitingForPomodoroState; }
+      else if (this->currentState == this->pomodoroStartedState) { newState = this->pomodoroState;           }
+      else if (this->currentState == this->pomodoroState)        { newState = this->pomodoroDoneState;       }
+      else if (this->currentState == this->pomodoroDoneState)    { newState = this->waitingForBreakState;    }
       else {
         Logger::println("ERROR! No state transition found!");
       }
