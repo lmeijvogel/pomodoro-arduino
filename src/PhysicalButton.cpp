@@ -20,6 +20,9 @@ class PhysicalButton {
        *
        * Whenever a boundary value is hit (0 or PRESS_THRESHOLD), change the
        * state to false (not pressed) resp. true (pressed).
+       *
+       * It is up to calling code to track whether the state changed
+       * from not-pressed to pressed and to act accordingly.
        */
       int reading = digitalRead(buttonId);
 
