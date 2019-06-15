@@ -1,7 +1,7 @@
 CXX = g++
 CXXFLAGS = -std=c++0x -g -Wall -Wextra -pedantic
 
-APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/BreakState.o obj/BlinkingState.o obj/PatternedBlinkingState.o obj/WaitingState.o obj/Context.o
+APP_FILES_O = obj/GuiLight.o obj/CountdownState.o obj/PomodoroState.o obj/BreakState.o obj/BlinkingState.o obj/WaitingState.o obj/Context.o obj/RandomGenerator.o
 TEST_FILES_O = obj/PomodoroStateTests.o obj/ContextTests.o $(APP_FILES_O)
 
 default: bin bin/main
@@ -46,8 +46,11 @@ obj/PomodoroState.o: obj/CountdownState.o src/PomodoroState.cpp
 obj/BlinkingState.o: obj/CountdownState.o src/BlinkingState.cpp
 	$(CXX) src/BlinkingState.cpp -c -o $@ $(CXXFLAGS)
 
-obj/PatternedBlinkingState.o: obj/CountdownState.o src/PatternedBlinkingState.cpp
-	$(CXX) src/PatternedBlinkingState.cpp -c -o $@ $(CXXFLAGS)
+obj/RandomBlinkingState.o: src/RandomBlinkingState.cpp obj/CountdownState.o  obj/RandomGenerator.o
+	$(CXX) src/RandomBlinkingState.cpp -c -o $@ $(CXXFLAGS)
+
+obj/RandomGenerator.o: src/RandomGenerator.cpp src/RandomGenerator.h
+	$(CXX) src/RandomGenerator.cpp -c -o $@ $(CXXFLAGS)
 
 obj/BreakDoneState.o: obj/BlinkingState.o src/BreakDoneState.cpp
 	$(CXX) src/BreakDoneState.cpp -c -o $@ $(CXXFLAGS)

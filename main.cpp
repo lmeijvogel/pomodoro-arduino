@@ -11,7 +11,7 @@
 #include "src/WaitingState.cpp"
 #include "src/PomodoroState.cpp"
 #include "src/BlinkingState.cpp"
-#include "src/PatternedBlinkingState.cpp"
+#include "src/RandomBlinkingState.cpp"
 #include "src/Light.hpp"
 #include "src/GuiLight.cpp"
 #include "Gui.hpp"
@@ -59,11 +59,11 @@ int main() {
 
   sigaction(SIGINT, &sigIntHandler, NULL);
 
-  PatternedBlinkingState pomodoroStartedState(BLINKING_PATTERN_STATE_DURATION, (LightPtr *)lights, NUMBER_OF_LIGHTS, "pomodoroStarted", blinkingPattern, NUMBER_OF_BLINKING_PATTERNS, NUMBER_OF_BLINKING_PATTERN_REPETITIONS);
+  RandomBlinkingState pomodoroStartedState(BLINKING_PATTERN_STATE_DURATION, (LightPtr *)lights, NUMBER_OF_LIGHTS, true, "pomodoroStarted");
   PomodoroState pomodoroState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   BlinkingState pomodoroDoneState("pomodoroDone", 3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   WaitingState waitingForBreakState("waitingForBreak", "01010", (LightPtr *)lights, NUMBER_OF_LIGHTS);
-  PatternedBlinkingState breakStartedState(BLINKING_PATTERN_STATE_DURATION, (LightPtr *)lights, NUMBER_OF_LIGHTS, "breakStarted", blinkingPattern, NUMBER_OF_BLINKING_PATTERNS, NUMBER_OF_BLINKING_PATTERN_REPETITIONS);
+  RandomBlinkingState breakStartedState(BLINKING_PATTERN_STATE_DURATION, (LightPtr *)lights, NUMBER_OF_LIGHTS, false, "breakStarted");
   BreakState breakState(2500, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   BlinkingState breakDoneState("breakDone", 3000, 5, (LightPtr *)lights, NUMBER_OF_LIGHTS);
   WaitingState waitingForPomodoroState("waitingForPomodoro", "00100", (LightPtr *)lights, NUMBER_OF_LIGHTS);

@@ -3,9 +3,8 @@
 
 #include "State.hpp"
 #include "WaitingState.cpp"
+#include "CountdownState.cpp"
 #include "PomodoroState.cpp"
-#include "BlinkingState.cpp"
-#include "PatternedBlinkingState.cpp"
 #include "WaitingState.cpp"
 #include "BreakState.cpp"
 
@@ -13,7 +12,7 @@
 
 class Context {
   public:
-    Context(WaitingState *waitingForPomodoroState, PatternedBlinkingState *pomodoroStartedState, PomodoroState *pomodoroState, BlinkingState *pomodoroDoneState, WaitingState *waitingForBreakState, PatternedBlinkingState *breakStartedState, BreakState *breakState, BlinkingState *breakDoneState) {
+    Context(WaitingState *waitingForPomodoroState, CountdownState *pomodoroStartedState, PomodoroState *pomodoroState, CountdownState *pomodoroDoneState, WaitingState *waitingForBreakState, CountdownState *breakStartedState, BreakState *breakState, CountdownState *breakDoneState) {
       this->waitingForPomodoroState = waitingForPomodoroState;
       this->pomodoroStartedState = pomodoroStartedState;
       this->pomodoroState = pomodoroState;
