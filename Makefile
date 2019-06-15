@@ -67,9 +67,6 @@ obj/Context.o: src/Context.cpp obj/PomodoroState.o obj/BlinkingState.o obj/Break
 obj/CountdownState.o: src/CountdownState.cpp
 	$(CXX) src/CountdownState.cpp -c -o $@ $(CXXFLAGS)
 
-obj/StateMachine.o: src/StateMachine.hpp src/StateMachine.cpp src/State.hpp
-	$(CXX) src/StateMachine.cpp -c -o $@ $(CXXFLAGS)
-
 obj/BareGui.o: BareGui.cpp Gui.hpp
 	$(CXX) BareGui.cpp -c -o $@ $(CXXFLAGS)
 
